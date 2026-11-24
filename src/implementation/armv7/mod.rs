@@ -137,3 +137,22 @@ unsafe fn validate_utf8_compat_neon(
     all(not(feature = "std"), not(target_feature = "neon"))
 ))]
 pub(crate) use super::validate_utf8_compat_fallback as validate_utf8_compat;
+
+#[cfg(all(feature = "armv7_neon", feature = "std", not(target_feature = "neon")))]
+#[inline]
+pub(crate) unsafe fn is_ascii(input: &[u8]) -> bool {
+    if std::arch::is_arm_feature_detected!("neon") {
+        return neon::is_ascii(input);
+    }
+
+    input.is_ascii()
+}
+
+#[cfg(all(feature = "armv7_neon", target_feature = "neon"))]
+pub(crate) use neon::is_ascii;
+
+#[cfg(any(
+    not(feature = "armv7_neon"),
+    all(not(feature = "std"), not(target_feature = "neon"))
+))]
+pub(crate) use super::is_ascii_fallback as is_ascii;

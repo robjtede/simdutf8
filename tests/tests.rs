@@ -575,3 +575,23 @@ fn error_derives_compat() {
     assert_eq!(err, err2);
     assert!(!(err != err2));
 }
+
+#[test]
+fn ascii_matches_standard_library() {
+    let mut bytes = [0x7f; 192];
+
+    for offset in 0..16 {
+        for &len in &[0, 1, 63, 64, 65, 127, 128, 129] {
+            let input = &mut bytes[offset..offset + len];
+            assert!(simdutf8::is_ascii(input));
+
+            for i in 0..len {
+                for &value in &[0x80, 0xff] {
+                    input[i] = value;
+                    assert_eq!(simdutf8::is_ascii(input), input.is_ascii());
+                }
+                input[i] = 0x7f;
+            }
+        }
+    }
+}

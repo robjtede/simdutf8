@@ -481,3 +481,89 @@ pub(crate) unsafe fn validate_utf8_compat_sse42(
     not(target_feature = "sse4.2")
 ))]
 pub(crate) use super::validate_utf8_compat_fallback as validate_utf8_compat;
+
+#[cfg(all(
+    feature = "std",
+    not(all(
+        avx512_stable,
+        target_feature = "avx512f",
+        target_feature = "avx512bw",
+        target_feature = "avx512vbmi",
+        target_feature = "avx512vbmi2"
+    )),
+    not(all(not(avx512_stable), target_feature = "avx2"))
+))]
+#[inline]
+pub(crate) unsafe fn is_ascii(input: &[u8]) -> bool {
+    #[cfg(avx512_stable)]
+    if std::is_x86_feature_detected!("avx512f")
+        && std::is_x86_feature_detected!("avx512bw")
+        && std::is_x86_feature_detected!("avx512vbmi")
+        && std::is_x86_feature_detected!("avx512vbmi2")
+    {
+        return avx512::is_ascii(input);
+    }
+
+    if std::is_x86_feature_detected!("avx2") {
+        return avx2::is_ascii(input);
+    }
+
+    if std::is_x86_feature_detected!("sse4.2") {
+        return sse42::is_ascii(input);
+    }
+
+    input.is_ascii()
+}
+
+#[cfg(all(
+    avx512_stable,
+    target_feature = "avx512f",
+    target_feature = "avx512bw",
+    target_feature = "avx512vbmi",
+    target_feature = "avx512vbmi2"
+))]
+pub(crate) use avx512::is_ascii;
+
+#[cfg(any(
+    all(
+        not(feature = "std"),
+        not(all(
+            avx512_stable,
+            target_feature = "avx512f",
+            target_feature = "avx512bw",
+            target_feature = "avx512vbmi",
+            target_feature = "avx512vbmi2"
+        )),
+        target_feature = "avx2"
+    ),
+    all(target_feature = "avx2", feature = "std", not(avx512_stable))
+))]
+pub(crate) use avx2::is_ascii;
+
+#[cfg(all(
+    not(feature = "std"),
+    not(all(
+        avx512_stable,
+        target_feature = "avx512f",
+        target_feature = "avx512bw",
+        target_feature = "avx512vbmi",
+        target_feature = "avx512vbmi2"
+    )),
+    not(target_feature = "avx2"),
+    target_feature = "sse4.2"
+))]
+pub(crate) use sse42::is_ascii;
+
+#[cfg(all(
+    not(feature = "std"),
+    not(all(
+        avx512_stable,
+        target_feature = "avx512f",
+        target_feature = "avx512bw",
+        target_feature = "avx512vbmi",
+        target_feature = "avx512vbmi2"
+    )),
+    not(target_feature = "avx2"),
+    not(target_feature = "sse4.2")
+))]
+pub(crate) use super::is_ascii_fallback as is_ascii;

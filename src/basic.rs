@@ -203,6 +203,7 @@ pub mod imp {
         /// behavior and will very likely cause a crash.
         #[cfg(avx512_stable)]
         pub mod avx512 {
+            pub use crate::implementation::x86::avx512::is_ascii;
             pub use crate::implementation::x86::avx512::validate_utf8_basic as validate_utf8;
             pub use crate::implementation::x86::avx512::ChunkedUtf8ValidatorImp;
             pub use crate::implementation::x86::avx512::Utf8ValidatorImp;
@@ -212,6 +213,7 @@ pub mod imp {
         /// Using the provided functionality on CPUs which do not support AVX 2 is undefined
         /// behavior and will very likely cause a crash.
         pub mod avx2 {
+            pub use crate::implementation::x86::avx2::is_ascii;
             pub use crate::implementation::x86::avx2::validate_utf8_basic as validate_utf8;
             pub use crate::implementation::x86::avx2::ChunkedUtf8ValidatorImp;
             pub use crate::implementation::x86::avx2::Utf8ValidatorImp;
@@ -221,6 +223,7 @@ pub mod imp {
         /// Using the provided functionality on CPUs which do not support SSE 4.2 is undefined
         /// behavior and will very likely cause a crash.
         pub mod sse42 {
+            pub use crate::implementation::x86::sse42::is_ascii;
             pub use crate::implementation::x86::sse42::validate_utf8_basic as validate_utf8;
             pub use crate::implementation::x86::sse42::ChunkedUtf8ValidatorImp;
             pub use crate::implementation::x86::sse42::Utf8ValidatorImp;
@@ -235,6 +238,7 @@ pub mod imp {
         /// Should be supported on all ARM64 CPUSs. If it is not supported by the operating
         /// system using it is undefined behavior and will likely cause a crash.
         pub mod neon {
+            pub use crate::implementation::aarch64::neon::is_ascii;
             pub use crate::implementation::aarch64::neon::validate_utf8_basic as validate_utf8;
             pub use crate::implementation::aarch64::neon::ChunkedUtf8ValidatorImp;
             pub use crate::implementation::aarch64::neon::Utf8ValidatorImp;
@@ -254,6 +258,7 @@ pub mod imp {
         /// Using the provided functionality on CPUs which do not support neon is undefined
         /// behavior and will very likely cause a crash.
         pub mod neon {
+            pub use crate::implementation::armv7::neon::is_ascii;
             pub use crate::implementation::armv7::neon::validate_utf8_basic as validate_utf8;
             pub use crate::implementation::armv7::neon::ChunkedUtf8ValidatorImp;
             pub use crate::implementation::armv7::neon::Utf8ValidatorImp;
@@ -268,6 +273,7 @@ pub mod imp {
         /// Using the provided functionality on WASM runtimes that do not support SIMD
         /// instructions will likely cause a crash.
         pub mod simd128 {
+            pub use crate::implementation::wasm32::simd128::is_ascii;
             pub use crate::implementation::wasm32::simd128::validate_utf8_basic as validate_utf8;
             pub use crate::implementation::wasm32::simd128::ChunkedUtf8ValidatorImp;
             pub use crate::implementation::wasm32::simd128::Utf8ValidatorImp;
@@ -279,6 +285,7 @@ pub mod imp {
     pub mod portable {
         /// Includes the validation implementation using 128-bit portable SIMD.
         pub mod simd128 {
+            pub use crate::implementation::portable::simd128::is_ascii;
             pub use crate::implementation::portable::simd128::validate_utf8_basic as validate_utf8;
             pub use crate::implementation::portable::simd128::ChunkedUtf8ValidatorImp;
             pub use crate::implementation::portable::simd128::Utf8ValidatorImp;
@@ -286,6 +293,7 @@ pub mod imp {
 
         /// Includes the validation implementation using 256-bit portable SIMD.
         pub mod simd256 {
+            pub use crate::implementation::portable::simd256::is_ascii;
             pub use crate::implementation::portable::simd256::validate_utf8_basic as validate_utf8;
             pub use crate::implementation::portable::simd256::ChunkedUtf8ValidatorImp;
             pub use crate::implementation::portable::simd256::Utf8ValidatorImp;

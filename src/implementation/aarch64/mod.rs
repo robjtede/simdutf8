@@ -38,3 +38,9 @@ unsafe fn validate_utf8_compat_neon(input: &[u8]) -> Result<(), crate::compat::U
 
 #[cfg(not(target_feature = "neon"))]
 pub(crate) use super::validate_utf8_compat_fallback as validate_utf8_compat;
+
+#[cfg(target_feature = "neon")]
+pub(crate) use neon::is_ascii;
+
+#[cfg(not(target_feature = "neon"))]
+pub(crate) use super::is_ascii_fallback as is_ascii;

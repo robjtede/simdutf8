@@ -190,6 +190,26 @@ macro_rules! algorithm_simd {
             }
         }
 
+        /// Returns true if every byte is ASCII.
+        ///
+        /// # Safety
+        /// The CPU must support the SIMD features used by this module.
+        $(#[$feat])*
+        #[inline]
+        pub unsafe fn is_ascii(input: &[u8]) -> bool {
+            use crate::implementation::helpers::SIMD_CHUNK_SIZE;
+
+            let mut blocks = input.chunks_exact(SIMD_CHUNK_SIZE);
+            for block in &mut blocks {
+                // Each block contains a full unaligned SIMD input.
+                if !SimdInput::new(block.as_ptr()).is_ascii() {
+                    return false;
+                }
+            }
+
+            blocks.remainder().is_ascii()
+        }
+
         /// Validation implementation for CPUs supporting the SIMD extension (see module).
         ///
         /// # Errors

@@ -13,6 +13,9 @@ pub(crate) mod helpers;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub(crate) mod x86;
 
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+pub(super) use x86::is_ascii;
+
 /// Fn needed instead of re-import, otherwise not inlined in non-std case
 #[flexpect::e(clippy::inline_always)]
 #[inline(always)]
@@ -33,6 +36,9 @@ pub(super) unsafe fn validate_utf8_compat(input: &[u8]) -> Result<(), crate::com
 
 #[cfg(all(target_arch = "arm", target_feature = "v7", target_endian = "little"))]
 pub(crate) mod armv7;
+
+#[cfg(all(target_arch = "arm", target_feature = "v7", target_endian = "little"))]
+pub(super) use armv7::is_ascii;
 
 /// Fn needed instead of re-import, otherwise not inlined in non-std case
 #[flexpect::e(clippy::inline_always)]
@@ -56,6 +62,9 @@ pub(super) unsafe fn validate_utf8_compat(input: &[u8]) -> Result<(), crate::com
 pub(crate) mod aarch64;
 
 #[cfg(target_arch = "aarch64")]
+pub(super) use aarch64::is_ascii;
+
+#[cfg(target_arch = "aarch64")]
 pub(super) use aarch64::validate_utf8_basic;
 
 #[cfg(target_arch = "aarch64")]
@@ -67,12 +76,24 @@ pub(super) use aarch64::validate_utf8_compat;
 pub(crate) mod wasm32;
 
 #[cfg(target_arch = "wasm32")]
+pub(super) use wasm32::is_ascii;
+
+#[cfg(target_arch = "wasm32")]
 pub(super) use wasm32::validate_utf8_basic;
 
 #[cfg(target_arch = "wasm32")]
 pub(super) use wasm32::validate_utf8_compat;
 
 // fallback for unsupported architectures
+
+#[cfg(not(any(
+    target_arch = "x86",
+    target_arch = "x86_64",
+    target_arch = "aarch64",
+    all(target_arch = "arm", target_feature = "v7", target_endian = "little"),
+    target_arch = "wasm32"
+)))]
+pub(super) use is_ascii_fallback as is_ascii;
 
 #[cfg(not(any(
     target_arch = "x86",
@@ -112,4 +133,10 @@ pub(crate) fn validate_utf8_basic_fallback(input: &[u8]) -> Result<(), crate::ba
 pub(crate) fn validate_utf8_compat_fallback(input: &[u8]) -> Result<(), crate::compat::Utf8Error> {
     // SAFETY: 0 is always in bounds
     unsafe { helpers::validate_utf8_at_offset(input, 0) }
+}
+
+#[inline]
+#[allow(dead_code)] // Only used on targets with a scalar fallback.
+pub(crate) unsafe fn is_ascii_fallback(input: &[u8]) -> bool {
+    input.is_ascii()
 }

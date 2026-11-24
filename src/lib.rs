@@ -141,3 +141,23 @@
 pub mod basic;
 pub mod compat;
 mod implementation;
+
+/// Returns true if every byte in `input` is ASCII (0x00 through 0x7F).
+///
+/// Pass `text.as_bytes()` to check a string.
+///
+/// ```
+/// use simdutf8::is_ascii;
+///
+/// assert!(is_ascii(b"Hello, world!"));
+/// assert!(!is_ascii("café".as_bytes()));
+/// ```
+#[inline]
+pub fn is_ascii(input: &[u8]) -> bool {
+    if input.len() < implementation::helpers::SIMD_CHUNK_SIZE {
+        return input.is_ascii();
+    }
+
+    // SAFETY: dispatch selects an implementation supported by the CPU.
+    unsafe { implementation::is_ascii(input) }
+}

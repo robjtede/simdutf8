@@ -38,3 +38,9 @@ unsafe fn validate_utf8_compat_simd128(input: &[u8]) -> Result<(), crate::compat
 
 #[cfg(not(target_feature = "simd128"))]
 pub(crate) use super::validate_utf8_compat_fallback as validate_utf8_compat;
+
+#[cfg(target_feature = "simd128")]
+pub(crate) use simd128::is_ascii;
+
+#[cfg(not(target_feature = "simd128"))]
+pub(crate) use super::is_ascii_fallback as is_ascii;
